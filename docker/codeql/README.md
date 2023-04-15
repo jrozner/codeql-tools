@@ -1,0 +1,1 @@
+This is a base container image designed to handle building of databases. `docker-entrypoint.sh` is designed to automate that process and produce databases that function similar to the ones that are produced as part of the GitHub Actions action. This will hopefully one day support running queries as well and automate uploading the SARIF results as well as databases.

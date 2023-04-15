@@ -50,18 +50,23 @@ if [ -z $repo ] && [ -z $indir ]; then
 fi
 
 if [ -n $repo ]; then
-  git clone --depth 1 $repo
-  indir=$(basename $repo | sed -e 's/\.git//')
+  friendly_name=$(echo $repo | grep -Eo "([^/]+\/[^/]+)(\.git)?$" | sed -e 's/\.git//')
+  indir="source/${friendly_name}"
+  mkdir -p $(dirname $indir)
+  git clone --depth 1 $repo $indir
 fi
 
 if [ -z $outdir ]; then
-  outdir=$(pwd)
+  outdir="artifacts/${friendly_name}/${lang}"
+  mkdir -p $outdir
 fi
 
-# TODO: change `database` to the name of the repo so it looks good in codeql
+database="database/${friendly_name}"
+mkdir -p $(dirname $database)
 
-codeql database create -l $lang -s $indir database
-codeql database bundle -o $outdir/$indir.zip database
+codeql database create -l $lang -s $indir $database
+artifact="${outdir}/$(basename $friendly_name).zip"
+codeql database bundle -o $artifact $database
 
 #if [ $UPLOAD ]; then
 #  curl -d "language=$LANG&" $DATABASE_STORE/databases/new
